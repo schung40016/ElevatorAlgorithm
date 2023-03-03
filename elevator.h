@@ -1,12 +1,9 @@
 #pragma once
 
-#include "job.h"
+#include <iostream>
 #include <vector>
-
-constexpr int UP = 1;
-constexpr int DOWN = -1;
-
-// Elevator should return a queue that has ordered on how a elevator behaves.
+#include <queue>
+#include "job.h"
 
 /*
 Elevator Behavior:
@@ -16,15 +13,27 @@ Elevator Behavior:
   taking orders in the opposite direction. 
 */ 
 
+constexpr int UP = 1;
+constexpr int DOWN = -1;
+
 class Elevator 
 {
 private:
     int capacity = 0;       // Number of people fit in the elevator.
     int floorLimit = 0;
-    std::vector<Job> jobLines;
+    int currFloor = 0;
+    int jobQueueTracker = 0;
+    Job* first = nullptr;
+    std::queue<Job> jobBank = {};
+    std::queue<Job> upJobLines = {};
+    std::queue<Job> downJobLines = {};
 
 public:
-    void AddRequest(const Job& request);
+    Elevator(int param_capacity, int param_floorLimit, int param_currFloor);
 
-    void GetElevatorQueue();
+    void AddRequest(Job& request);
+
+    std::queue<Job> GetElevatorQueue();
+
+    void AddQueue(Job& request, int direction);
 };
