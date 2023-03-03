@@ -35,5 +35,9 @@ public:
 
     std::queue<Job> GetElevatorQueue();
 
+    void UpdateJobQueue(std::queue<Job>& jobLine, int direction);
+
     void AddQueue(Job& request, int direction);
+
+    void ResetElevator();
 };

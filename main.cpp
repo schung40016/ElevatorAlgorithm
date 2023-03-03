@@ -12,7 +12,7 @@ int main()
     Job req1(0, 5, 3, UP, true);
     Job req2(0, 10, 5, DOWN, true);
     Job req3(0, 7, 1, UP, true);
-    Job req4(0, 8, 4, UP, true);
+    Job req4(0, 8, 4, UP, false);
     Job req5(0, 1, 3, DOWN, true);
     Job req6(0, 9, 4, UP, true);
     

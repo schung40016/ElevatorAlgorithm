@@ -36,41 +36,41 @@ std::queue<Job> Elevator::GetElevatorQueue()
         std::cout << "No requests inserted. Please try again." << std::endl;
         return jobBank;
     }
+
     // Construct and insert our first job.
     int currDir = this->currFloor < first->GetFloorDestination() ? UP : DOWN;
     AddQueue(*first, currDir);
 
-    // Main meat of the code is here.
     while (upJobLines.size() != 0 || downJobLines.size() != 0)
     {
         bool continueUp = jobBank.back().GetCurrentFloor() <= upJobLines.front().GetCurrentFloor();
         bool continueDown = jobBank.back().GetCurrentFloor() >= downJobLines.front().GetCurrentFloor();
 
+        /*
+        If we are going up and find more queues that are on the way, add them into the main job queue.
+        Vice versa for going down as well.
+        */
         if ((currDir == UP && continueUp) || downJobLines.empty())
         {
-            AddQueue(upJobLines.front(), UP);
-            upJobLines.pop();
+            UpdateJobQueue(upJobLines, UP);
         }
         else if ((currDir == DOWN && continueDown) || upJobLines.empty())
         {
-            AddQueue(downJobLines.front(), DOWN);
-            downJobLines.pop();
+            UpdateJobQueue(downJobLines, DOWN);
         }
         else
         {
             if (!continueUp && !continueDown)
             {
-                // Pick the one with the lowest queue number and add that to the 
+                // Pick the one with the lowest queue number and process it into the main job queue.
                 if (upJobLines.front().GetQueue() < downJobLines.front().GetQueue())
                 {
-                    AddQueue(upJobLines.front(), UP);
-                    upJobLines.pop();
+                    UpdateJobQueue(upJobLines, UP);
                     currDir = UP;
                 }
                 else
                 {
-                    AddQueue(downJobLines.front(), DOWN);
-                    downJobLines.pop();
+                    UpdateJobQueue(downJobLines, DOWN);
                     currDir = DOWN;
                 }
             }
@@ -84,18 +84,40 @@ std::queue<Job> Elevator::GetElevatorQueue()
     return jobBank;
 }
 
+void Elevator::UpdateJobQueue(std::queue<Job>& jobLine, int direction)
+{
+    AddQueue(jobLine.front(), direction);
+    jobLine.pop();
+}
+
 void Elevator::AddQueue(Job& request, int direction)
 {
-    std::cout << "Processing: " << request.GetCurrentFloor() << " == " << request.GetFloorDestination() << std::endl;
-    if (this->currFloor == request.GetCurrentFloor())
+    if (this->currFloor == request.GetCurrentFloor() || request.GetInside())
     {
         jobBank.push(request);
     }   
     else
     {
+        // Current request is not on the same floor, we create a new request to get to desired request first.
         Job temp(0, request.GetCurrentFloor(), currFloor, direction, false);  
         jobBank.push(temp);
         jobBank.push(request);   
     }    
     currFloor = request.GetFloorDestination();
+}
+
+// Resets Elevator for later use.
+void Elevator::ResetElevator()
+{
+    jobQueueTracker = 0;
+    first = nullptr;   
+    EmptyQueue(upJobLines);
+    EmptyQueue(downJobLines);
+    EmptyQueue(jobBank);
+}
+
+void Elevator::EmptyQueue(std::queue<Job>& queue)
+{
+    std::queue<Job> empty;
+    std::swap(queue, empty);
 }
