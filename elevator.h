@@ -10,15 +10,18 @@ public:
         Up,
         Down
     };
+	
     enum class ElevatorDirection : int {
         Up,
         Down,
     };
+
     enum class Request : int {
         Up,
         Down, 
         Stop
     };
+
     struct ElevatorRequest {
         bool m_upRequest = false;
         bool m_downRequest = false;

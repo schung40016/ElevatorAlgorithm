@@ -15,6 +15,56 @@ bool Elevator::Tick()
     return true;
 }
 
+// Checks for requests.
+bool Elevator::HasRequest(const ElevatorRequest& request) const
+{
+    return request.m_downRequest || request.m_stopRequest || request.m_upRequest;
+}
+
+bool Elevator::HasRequestAbove() const 
+{
+    for (int i = m_currentFloorIndex + 1; i < NUM_FLOORS; ++i)
+    {
+        if (HasRequest(m_currentRequests[i]))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Elevator::HasRequestBelow() const
+{
+    for (int i = m_currentFloorIndex - 1; i >= BASE_FLOOR_INDEX; --i)
+    {
+        if (HasRequest(m_currentRequests[i]))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Elevator::HasRequestOnCurrent() const
+{
+    return HasRequest(m_currentRequests[m_currentFloorIndex]);
+}
+
+int Elevator::GetNumRequests() const
+{
+    int totalRequests = 0;
+
+    for (int i = 0; i < NUM_FLOORS; ++i)
+    {
+        if (HasRequest(m_currentRequests[i]))
+        {
+            totalRequests++;
+        }
+    }
+
+    return totalRequests;
+}
+
 // Reset current floor's requests default.
 void Elevator::ClearRequestsOnCurrent()
 {
