@@ -12,7 +12,71 @@ void Elevator::Print() const
 // Use switch statement here to determine elevator's state.
 bool Elevator::Tick()
 {
-    return true;
+    // Treat each case like a state of our elevator machine.
+    switch(GetElevatorState())
+    {
+        case ElevatorState::Idle: {
+            if (m_idleTicks <= 0 )
+            {
+                // Finished waiting. 
+                if (HasRequestOnCurrent())
+                {
+                    ClearRequestsOnCurrent();
+                }
+                
+                switch(m_direction)
+                {
+                    case ElevatorDirection::Up: {
+                        HasRequestAbove() ? SetState(ElevatorState::Up) : SetState(ElevatorState::Down);
+                    }
+                    case ElevatorDirection::Down: {
+                        HasRequestBelow() ? SetState(ElevatorState::Down) : SetState(ElevatorState::Up);
+                    }
+                }
+            }
+            m_idleTicks--;
+        }
+        case ElevatorState::Up: {
+            ElevatorRequest& temp = GetRequest(m_currentFloorIndex);
+
+            // Only process requests that are doing in the same direction.
+            if (HasRequestOnCurrent() && temp.m_upRequest)
+            {
+                SetState(ElevatorState::Idle);  // To process a request, the elevator must go idle.
+                m_idleTicks = NUM_IDLE_TICKS;
+            }
+            else if (HasRequestAbove())
+            {
+                m_currentFloorIndex++;          // No requests on current, continue going up.
+            } 
+            else // We can go down from here.
+            {
+                SetState(ElevatorState::Down);
+                m_direction = ElevatorDirection::Down;
+            }
+        }
+        case ElevatorState::Down: {
+            ElevatorRequest& temp = GetRequest(m_currentFloorIndex);
+
+            // Only process requests that are doing in the same direction.
+            if (HasRequestOnCurrent() && temp.m_downRequest)
+            {
+                SetState(ElevatorState::Idle);  // To process a request, the elevator must go idle.
+                m_idleTicks = NUM_IDLE_TICKS;
+            }
+            else if (HasRequestBelow())
+            {
+                m_currentFloorIndex--;          // No requests on current, continue going up.
+            } 
+            else // No requests below, let's start heading up again.
+            {
+                SetState(ElevatorState::Up);
+                m_direction = ElevatorDirection::Up;
+            }
+        }
+    }
+
+    return GetNumRequests == 0 ? true : false;
 }
 
 // Checks for requests.
