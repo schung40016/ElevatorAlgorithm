@@ -13,17 +13,9 @@ int main()
     elevator.MakeRequest(7, Elevator::Request::Up);
 
     // Use a while loop
-    int i = 5;
-
     while (elevator.Tick())
     {
         elevator.Print();
-        //i--;
-
-        if (i == 0)
-        {
-            break;
-        }
     }
 
     return 0;
