@@ -2,8 +2,8 @@
 
 void Elevator::Print() const
 {
-    std::cout << "Elevator currently sits at floor: " << m_currentFloorIndex << "." << std::endl;
-    std::cout << "Elevator is currently " << static_cast<std::underlying_type<ElevatorState>::type>(m_state) << "." << std::endl;
+    std::cout << "Elevator currently sits at floor: " << (m_currentFloorIndex + 1)<< "." << std::endl;
+    std::cout << "Elevator is currently heading " << static_cast<std::underlying_type<ElevatorState>::type>(m_state) << "." << std::endl;
     std::cout << "Elevator is heading " << static_cast<std::underlying_type<ElevatorDirection>::type>(m_direction) << "." << std::endl;
 }
 
@@ -13,7 +13,7 @@ void Elevator::Print() const
 bool Elevator::Tick()
 {
     // Treat each case like a state of our elevator machine.
-    switch(GetElevatorState())
+    switch(m_state)
     {
         case ElevatorState::Idle: {
             if (m_idleTicks <= 0 )
@@ -23,27 +23,27 @@ bool Elevator::Tick()
                 {
                     ClearRequestsOnCurrent();
                 }
-                
+
                 switch(m_direction)
                 {
-                    case ElevatorDirection::Up: {
+                    case ElevatorDirection::Up:
                         HasRequestAbove() ? SetState(ElevatorState::Up) : SetState(ElevatorState::Down);
-                    }
-                    case ElevatorDirection::Down: {
+                        break;
+                    case ElevatorDirection::Down:
                         HasRequestBelow() ? SetState(ElevatorState::Down) : SetState(ElevatorState::Up);
-                    }
+                        break;
                 }
             }
             m_idleTicks--;
+            break;
         }
         case ElevatorState::Up: {
-            ElevatorRequest& temp = GetRequest(m_currentFloorIndex);
+            const ElevatorRequest& temp = GetRequest(m_currentFloorIndex + 1);
 
             // Only process requests that are doing in the same direction.
             if (HasRequestOnCurrent() && temp.m_upRequest)
             {
                 SetState(ElevatorState::Idle);  // To process a request, the elevator must go idle.
-                m_idleTicks = NUM_IDLE_TICKS;
             }
             else if (HasRequestAbove())
             {
@@ -54,15 +54,15 @@ bool Elevator::Tick()
                 SetState(ElevatorState::Down);
                 m_direction = ElevatorDirection::Down;
             }
+            break;
         }
         case ElevatorState::Down: {
-            ElevatorRequest& temp = GetRequest(m_currentFloorIndex);
+            const ElevatorRequest& temp = GetRequest(m_currentFloorIndex + 1);
 
             // Only process requests that are doing in the same direction.
             if (HasRequestOnCurrent() && temp.m_downRequest)
             {
                 SetState(ElevatorState::Idle);  // To process a request, the elevator must go idle.
-                m_idleTicks = NUM_IDLE_TICKS;
             }
             else if (HasRequestBelow())
             {
@@ -73,10 +73,11 @@ bool Elevator::Tick()
                 SetState(ElevatorState::Up);
                 m_direction = ElevatorDirection::Up;
             }
+            break;
         }
     }
 
-    return GetNumRequests == 0 ? true : false;
+    return GetNumRequests() == 0 ? false : true;
 }
 
 // Checks for requests.
@@ -125,7 +126,6 @@ int Elevator::GetNumRequests() const
             totalRequests++;
         }
     }
-
     return totalRequests;
 }
 
@@ -139,7 +139,23 @@ void Elevator::ClearRequestsOnCurrent()
 
 void Elevator::SetState(ElevatorState state)
 {
-    m_state = state;
+    switch (state)
+    {
+        case ElevatorState::Up: {
+            m_state = ElevatorState::Up;
+            break;
+        }
+        case ElevatorState::Idle: {
+                m_idleTicks = NUM_IDLE_TICKS;
+                m_state = ElevatorState::Idle;
+                break;
+        }
+        case ElevatorState::Down: 
+        {
+            m_state = ElevatorState::Down;
+            break;
+        }
+    }
 }
 
 void Elevator::MakeRequest(int floor, Request request)
@@ -147,7 +163,6 @@ void Elevator::MakeRequest(int floor, Request request)
     floor -= 1;
     if (floor > NUM_FLOORS || floor < BASE_FLOOR_INDEX)
     {
-        std::cout << "Error processing floor input: " << floor << std::endl;
         return;
     }
 
