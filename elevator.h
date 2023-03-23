@@ -30,7 +30,7 @@ public:
 
     // Getters.
     ElevatorState GetElevatorState() const { return m_state; }
-	const ElevatorRequest& GetRequest(int floor) const { assert(floor > 0 && floor < NUM_FLOORS - 1); return m_currentRequests[floor - 1]; }    // Assert can be used like if statements to stop the program from executing if it is given a wrong input.
+	const ElevatorRequest& GetRequest(int floor) const { assert(floor >= 0 && floor < NUM_FLOORS - 1); return m_currentRequests[floor]; }    // Assert can be used like if statements to stop the program from executing if it is given a wrong input.
 	int GetCurrentFloor() const { return m_currentFloorIndex + 1; }
 	
 	// Check various request states

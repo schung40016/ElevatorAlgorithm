@@ -3,8 +3,8 @@
 void Elevator::Print() const
 {
     std::cout << "Elevator currently sits at floor: " << (m_currentFloorIndex + 1)<< "." << std::endl;
-    std::cout << "Elevator is currently heading " << static_cast<std::underlying_type<ElevatorState>::type>(m_state) << "." << std::endl;
-    std::cout << "Elevator is heading " << static_cast<std::underlying_type<ElevatorDirection>::type>(m_direction) << "." << std::endl;
+    std::cout << "Elevator's state is currently: " << static_cast<std::underlying_type<ElevatorState>::type>(m_state) << "." << std::endl;
+    std::cout << "Elevator is heading: " << static_cast<std::underlying_type<ElevatorDirection>::type>(m_direction) << "." << std::endl;
 }
 
 // Call to process the elevator.
@@ -38,7 +38,7 @@ bool Elevator::Tick()
             break;
         }
         case ElevatorState::Up: {
-            const ElevatorRequest& temp = GetRequest(m_currentFloorIndex + 1);
+            const ElevatorRequest& temp = GetRequest(m_currentFloorIndex);
 
             // Only process requests that are doing in the same direction.
             if (HasRequestOnCurrent() && temp.m_upRequest)
@@ -57,7 +57,7 @@ bool Elevator::Tick()
             break;
         }
         case ElevatorState::Down: {
-            const ElevatorRequest& temp = GetRequest(m_currentFloorIndex + 1);
+            const ElevatorRequest& temp = GetRequest(m_currentFloorIndex);
 
             // Only process requests that are doing in the same direction.
             if (HasRequestOnCurrent() && temp.m_downRequest)
@@ -126,6 +126,8 @@ int Elevator::GetNumRequests() const
             totalRequests++;
         }
     }
+
+    std::cout << "Req #: " << totalRequests << std::endl;
     return totalRequests;
 }
 
@@ -161,6 +163,9 @@ void Elevator::SetState(ElevatorState state)
 void Elevator::MakeRequest(int floor, Request request)
 {
     floor -= 1;
+
+    std::cout << "FLoor Add: " << floor << ", Request" << static_cast<std::underlying_type<Request>::type>(request) << std::endl;
+
     if (floor > NUM_FLOORS || floor < BASE_FLOOR_INDEX)
     {
         return;
