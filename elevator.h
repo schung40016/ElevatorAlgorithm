@@ -30,7 +30,7 @@ public:
 
     // Getters.
     ElevatorState GetElevatorState() const { return m_state; }
-	const ElevatorRequest& GetRequest(int floor) const { assert(floor >= 0 && floor < NUM_FLOORS - 1); return m_currentRequests[floor]; }    // Assert can be used like if statements to stop the program from executing if it is given a wrong input.
+	const ElevatorRequest& GetRequest(int floor) const { assert(floor >= 0 && floor < NUM_FLOORS); return m_currentRequests[floor]; }    // Assert can be used like if statements to stop the program from executing if it is given a wrong input.
 	int GetCurrentFloor() const { return m_currentFloorIndex + 1; }
 	
 	// Check various request states
@@ -55,14 +55,14 @@ public:
 
 private:
 	static constexpr int BASE_FLOOR_INDEX = 0;
-	static constexpr int NUM_FLOORS = 10;
+	static constexpr int NUM_FLOORS = 11;
 	static constexpr int NUM_IDLE_TICKS = 5; // How long elevator should stay idle.
 	
 	// Current Floor the elevator is stationed on.
 	int m_currentFloorIndex = BASE_FLOOR_INDEX;
 
 	// NOT A QUEUE/LIST OF REQUESTS. Checks whether each floor has a request like a hash. 
-	ElevatorRequest m_currentRequests[NUM_FLOORS];
+	ElevatorRequest m_currentRequests[NUM_FLOORS + 1];
 
 	// State of the elevator
 	ElevatorState m_state = ElevatorState::Idle;
